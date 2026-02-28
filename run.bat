@@ -18,7 +18,7 @@ echo.
 
 :: ── 1. Installa dipendenze ──────────────────────────────────
 echo  [1/5] Installazione dipendenze npm...
-call npm install --ignore-scripts 2>nul
+call npm install
 :: npm può uscire con codice non-zero per via delle vulnerabilità, verifichiamo
 :: che node_modules esista invece di controllare l'exit code
 if not exist "node_modules" (
