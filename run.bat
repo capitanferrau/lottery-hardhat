@@ -15,6 +15,7 @@ echo  ==========================================
 echo   LOTTERY - Automazione Completa
 echo  ==========================================
 echo.
+pause
 
 :: ── 1. Installa dipendenze ──────────────────────────────────
 echo  [1/5] Installazione dipendenze npm...
