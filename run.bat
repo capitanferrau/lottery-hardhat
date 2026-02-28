@@ -35,9 +35,10 @@ del compile_output.tmp >nul 2>&1
 echo  [OK] Contratto compilato.
 echo.
 
-:: ── 3. Esegui i test ────────────────────────────────────────
-echo  [3/5] Esecuzione test...
-call npx hardhat test > test_output.tmp 2>&1
+:: ── 3. Esegui test + coverage ───────────────────────────────
+echo  [3/5] Esecuzione test e coverage...
+set SOLIDITY_COVERAGE=true
+call npx hardhat coverage > test_output.tmp 2>&1
 type test_output.tmp
 
 :: Controlla se ci sono test falliti nel output
@@ -48,7 +49,7 @@ if %errorlevel% equ 0 (
     pause & exit /b 1
 )
 del test_output.tmp >nul 2>&1
-echo  [OK] Tutti i test passati.
+echo  [OK] Test e coverage completati.
 echo.
 
 :: ── 4. Avvia il nodo in background ─────────────────────────

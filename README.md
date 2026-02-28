@@ -1,7 +1,5 @@
 # 🎰 Lottery Hardhat + Viem
 
-![Tests](https://github.com/capitanferrau/lottery-hardhat/actions/workflows/test.yml/badge.svg)
-
 Progetto Hardhat per il contratto `LotteryWithTickets.sol`, con script di deploy, interazione e test scritti usando **Viem**.
 
 ---
@@ -10,9 +8,6 @@ Progetto Hardhat per il contratto `LotteryWithTickets.sol`, con script di deploy
 
 ```
 lottery-hardhat/
-├── .github/
-│   └── workflows/
-│       └── test.yml               # GitHub Actions: esegue i test ad ogni push
 ├── contracts/
 │   └── LotteryWithTickets.sol     # Il contratto
 ├── scripts/
@@ -22,6 +17,7 @@ lottery-hardhat/
 │   └── LotteryWithTickets.test.js # 32 test con Viem + Chai
 ├── hardhat.config.js
 ├── package.json
+├── package-lock.json              # Versioni esatte delle dipendenze (non modificare)
 ├── README.md
 └── run.bat                        # Automazione completa con un click (Windows)
 ```
@@ -74,7 +70,7 @@ Lo script esegue automaticamente in sequenza:
 
 1. `npm install` — installa le dipendenze
 2. `npx hardhat compile` — compila il contratto
-3. `npx hardhat test` — esegue tutti i test
+3. `npx hardhat coverage` — esegue i test e mostra la copertura del codice
 4. Avvia il nodo Hardhat locale in una finestra separata
 5. Deploy del contratto e salvataggio automatico dell'indirizzo
 6. Esegue lo script di interazione completa
