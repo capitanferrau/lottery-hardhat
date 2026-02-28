@@ -30,7 +30,7 @@ Il contratto `LotteryWithTickets` implementa una lotteria on-chain con i seguent
 
 **Partecipazione** — Chiunque può acquistare uno o più biglietti inviando un multiplo di `ticketPrice` (default 0.01 ETH) alla funzione `buyTickets()`. Ogni biglietto corrisponde a una entry nell'array `tickets`, quindi chi compra più biglietti ha più probabilità di vincere.
 
-**Estrazione** — Solo il manager può chiamare `pickWinner()`, che seleziona un indirizzo a caso dall'array dei biglietti usando `keccak256` su `block.prevrandao`, `block.timestamp` e la lunghezza dell'array. Il montepremi viene assegnato al vincitore tramite il pattern **pull-payment** (`pendingWithdrawals`) per prevenire attacchi DoS.
+**Estrazione** — Prima di estrarre, il manager deve chiudere la lotteria con `closeLottery()` (impedendo nuovi acquisti). Solo allora può chiamare `pickWinner()`, che seleziona un indirizzo a caso dall'array dei biglietti usando `keccak256` su `block.prevrandao`, `block.timestamp` e la lunghezza dell'array. Il montepremi viene assegnato al vincitore tramite il pattern **pull-payment** (`pendingWithdrawals`) per prevenire attacchi DoS.
 
 **Ritiro** — Il vincitore chiama `withdraw()` per ricevere i fondi. Il contratto segue il pattern **CEI** (Check-Effect-Interaction) per prevenire attacchi di reentrancy.
 
@@ -134,10 +134,9 @@ Lo script esegue in sequenza:
 1. Mostra lo stato iniziale della lotteria
 2. Dimostra il cambio del prezzo biglietto
 3. Player1 e Player2 acquistano biglietti
-4. Il manager estrae il vincitore
+4. Il manager chiude la lotteria ed estrae il vincitore
 5. Il vincitore ritira i fondi
-6. Il manager chiude la lotteria e verifica il revert
-7. Il manager riapre la lotteria per la prossima edizione
+6. Il manager riapre la lotteria per la prossima edizione
 
 > ⚠️ Ogni volta che riavvii `npm run node`, la blockchain riparte da zero e devi ripetere il deploy.
 

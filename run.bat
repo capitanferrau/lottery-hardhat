@@ -13,6 +13,34 @@ echo   LOTTERY - Automazione Completa
 echo  ==========================================
 echo.
 
+:: ── 0. Controlla prerequisiti ────────────────────────────────
+echo  [0/5] Controllo prerequisiti...
+
+node --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo  [ERRORE] Node.js non e' installato!
+    echo  Scaricalo da: https://nodejs.org
+    echo  Installa la versione LTS, poi riprova.
+    echo.
+    pause & exit /b 1
+)
+for /f "tokens=*" %%v in ('node --version') do set NODE_VERSION=%%v
+echo  [OK] Node.js %NODE_VERSION% trovato.
+
+npm --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo  [ERRORE] npm non e' installato!
+    echo  Viene installato automaticamente con Node.js.
+    echo  Scarica Node.js da: https://nodejs.org
+    echo.
+    pause & exit /b 1
+)
+for /f "tokens=*" %%v in ('npm --version') do set NPM_VERSION=%%v
+echo  [OK] npm %NPM_VERSION% trovato.
+echo.
+
 :: ── 1. Installa dipendenze ──────────────────────────────────
 echo  [1/5] Installazione dipendenze npm...
 call npm install
@@ -24,7 +52,6 @@ echo  [2/5] Compilazione contratto Solidity...
 call npx hardhat compile > compile_output.tmp 2>&1
 type compile_output.tmp
 
-:: Errore reale se contiene "Error" ma NON e' il bug UV_HANDLE_CLOSING
 findstr /i "SyntaxError\|CompileError\|ParseError\|HardhatError" compile_output.tmp >nul 2>&1
 if %errorlevel% equ 0 (
     del compile_output.tmp >nul 2>&1
@@ -41,7 +68,6 @@ set SOLIDITY_COVERAGE=true
 call npx hardhat coverage > test_output.tmp 2>&1
 type test_output.tmp
 
-:: Controlla se ci sono test falliti nel output
 findstr /i "failing" test_output.tmp >nul 2>&1
 if %errorlevel% equ 0 (
     del test_output.tmp >nul 2>&1
@@ -56,7 +82,6 @@ echo.
 echo  [4/5] Avvio nodo Hardhat locale...
 start "Hardhat Node" cmd /k "npx hardhat node"
 
-:: Aspetta che il nodo sia pronto (max 15 secondi)
 echo  Attendo che il nodo sia pronto...
 set /a attempts=0
 :WAIT_NODE
@@ -81,7 +106,6 @@ call npx hardhat run scripts/deploy.js --network localhost > deploy_output.tmp 2
 type deploy_output.tmp
 echo.
 
-:: Controlla errori reali nel deploy
 findstr /i "HardhatError\|Error:" deploy_output.tmp | findstr /v /i "UV_HANDLE_CLOSING\|Assertion failed" >nul 2>&1
 if %errorlevel% equ 0 (
     del deploy_output.tmp >nul 2>&1
@@ -89,7 +113,6 @@ if %errorlevel% equ 0 (
     pause & exit /b 1
 )
 
-:: Estrai l'indirizzo dal output
 for /f "tokens=*" %%a in ('findstr /i "deployato" deploy_output.tmp') do set DEPLOY_LINE=%%a
 for /f "tokens=5" %%a in ("%DEPLOY_LINE%") do set CONTRACT_ADDRESS=%%a
 del deploy_output.tmp >nul 2>&1
@@ -101,7 +124,6 @@ if "%CONTRACT_ADDRESS%"=="" (
 echo  [OK] Contratto deployato: %CONTRACT_ADDRESS%
 echo.
 
-:: Aggiorna l'indirizzo in interact.js
 echo  Aggiornamento indirizzo in interact.js...
 node -e "const fs=require('fs');const f='scripts/interact.js';let c=fs.readFileSync(f,'utf8');c=c.replace(/CONTRACT_ADDRESS\s*=\s*[\"'].*?[\"']/,'CONTRACT_ADDRESS = \"%CONTRACT_ADDRESS%\"');fs.writeFileSync(f,c);console.log('Indirizzo aggiornato: %CONTRACT_ADDRESS%');"
 echo.
@@ -128,4 +150,8 @@ echo.
 echo  ==========================================
 echo   Tutto completato con successo!
 echo  ==========================================
+echo.
+echo  Il nodo Hardhat e' ancora attivo nella finestra separata.
+echo  Chiudila manualmente quando hai finito.
+echo.
 pause

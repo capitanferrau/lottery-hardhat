@@ -48,6 +48,14 @@ contract LotteryWithTickets {
         _;
     }
 
+    /**
+     * @dev Consente l'azione solo se la lotteria è chiusa.
+     */
+    modifier onlyWhenClosed() {
+        require(!isOpen, "Chiudi la lotteria prima di estrarre il vincitore");
+        _;
+    }
+
     // ── Funzioni manager ─────────────────────────────────────
 
     /**
@@ -84,9 +92,9 @@ contract LotteryWithTickets {
      * @dev Funzione per scegliere il vincitore.
      * Solo il manager può chiamarla; seleziona un biglietto a caso, salva l'intero saldo
      * del contratto per il vincitore e resetta l'array dei biglietti per la prossima edizione.
-     * La lotteria deve essere aperta per poter estrarre.
+     * La lotteria deve essere CHIUSA per poter estrarre (chiudi prima con closeLottery()).
      */
-    function pickWinner() public restricted onlyWhenOpen {
+    function pickWinner() public restricted onlyWhenClosed {
         require(tickets.length > 0, "Non ci sono biglietti acquistati");
         uint index = random() % tickets.length;
         address winner = tickets[index];
@@ -122,7 +130,7 @@ contract LotteryWithTickets {
      */
     function withdraw() public {
         uint256 amount = pendingWithdrawals[msg.sender];
-        require(amount > 0, "Nessun fondo da prelevare");          // Check
+        require(amount > 0, "Nessun fondo da prelevare");         // Check
         pendingWithdrawals[msg.sender] = 0;                        // Effect
 
         (bool success, ) = msg.sender.call{value: amount}("");     // Interaction

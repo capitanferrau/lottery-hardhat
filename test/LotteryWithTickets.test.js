@@ -33,6 +33,7 @@ async function lotteryAfterPickFixture() {
   const base = await deployLotteryFixture();
   const { lottery, manager, player1 } = base;
   await lottery.write.buyTickets([], { account: player1.account, value: parseEther("0.01") });
+  await lottery.write.closeLottery([], { account: manager.account });
   await lottery.write.pickWinner([], { account: manager.account });
   return base;
 }
@@ -243,21 +244,22 @@ describe("LotteryWithTickets", function () {
   // ── pickWinner ───────────────────────────────────────────
   describe("pickWinner", function () {
     it("Solo il manager può estrarre il vincitore", async function () {
-      const { lottery, player1 } = await loadFixture(lotteryWithTicketsFixture);
+      const { lottery, manager, player1 } = await loadFixture(lotteryWithTicketsFixture);
+      await lottery.write.closeLottery([], { account: manager.account });
       await expect(
         lottery.write.pickWinner([], { account: player1.account })
       ).to.be.rejectedWith("Solo il manager puo' chiamare questa funzione");
     });
 
-    it("Revert se la lotteria è chiusa", async function () {
-      const { lottery, manager } = await loadFixture(lotteryClosedFixture);
+    it("Revert se la lotteria è aperta", async function () {
+      const { lottery, manager } = await loadFixture(lotteryWithTicketsFixture);
       await expect(
         lottery.write.pickWinner([], { account: manager.account })
-      ).to.be.rejectedWith("La lotteria e' chiusa");
+      ).to.be.rejectedWith("Chiudi la lotteria prima di estrarre il vincitore");
     });
 
     it("Revert se non ci sono biglietti", async function () {
-      const { lottery, manager } = await loadFixture(deployLotteryFixture);
+      const { lottery, manager } = await loadFixture(lotteryClosedFixture);
       await expect(
         lottery.write.pickWinner([], { account: manager.account })
       ).to.be.rejectedWith("Non ci sono biglietti acquistati");
@@ -265,6 +267,7 @@ describe("LotteryWithTickets", function () {
 
     it("Resetta l'array biglietti dopo l'estrazione", async function () {
       const { lottery, manager } = await loadFixture(lotteryWithTicketsFixture);
+      await lottery.write.closeLottery([], { account: manager.account });
       await lottery.write.pickWinner([], { account: manager.account });
       const tickets = await lottery.read.getTickets();
       expect(tickets.length).to.equal(0);
@@ -272,6 +275,7 @@ describe("LotteryWithTickets", function () {
 
     it("Assegna il saldo al vincitore in pendingWithdrawals", async function () {
       const { lottery, manager, publicClient } = await loadFixture(lotteryWithTicketsFixture);
+      await lottery.write.closeLottery([], { account: manager.account });
       const contractBalance = await publicClient.getBalance({ address: lottery.address });
       const hash = await lottery.write.pickWinner([], { account: manager.account });
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -288,6 +292,7 @@ describe("LotteryWithTickets", function () {
 
     it("Emette l'evento WinnerSelected", async function () {
       const { lottery, manager, publicClient } = await loadFixture(lotteryWithTicketsFixture);
+      await lottery.write.closeLottery([], { account: manager.account });
       const hash = await lottery.write.pickWinner([], { account: manager.account });
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       const logs = await publicClient.getContractEvents({

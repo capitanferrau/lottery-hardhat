@@ -10,7 +10,7 @@ const hre = require("hardhat");
 const { parseEther, formatEther } = require("viem");
 
 // ⚠️  Inserisci qui l'indirizzo del contratto dopo il deploy
-const CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS_HERE";
 
 // ── Utility ──────────────────────────────────────────────────
 function sep(title) {
@@ -84,6 +84,10 @@ async function main() {
 
   // ── 4. Estrazione vincitore ────────────────────────────────
   sep("4. Estrazione vincitore");
+  console.log("  Il manager chiude la lotteria prima di estrarre...");
+  hash = await lottery.write.closeLottery([], { account: manager.account });
+  await publicClient.waitForTransactionReceipt({ hash });
+  console.log("  ✅ Lotteria chiusa — nessun nuovo biglietto accettato");
   console.log("  Il manager estrae il vincitore...");
   hash = await lottery.write.pickWinner([], { account: manager.account });
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -119,26 +123,8 @@ async function main() {
   console.log(`  Balance dopo  : ${formatEther(balAfter)} ETH`);
   console.log(`  ✅ Ritiro completato!`);
 
-  // ── 6. Chiusura lotteria ───────────────────────────────────
-  sep("6. Chiusura lotteria");
-  console.log("  Il manager chiude la lotteria...");
-  hash = await lottery.write.closeLottery([], { account: manager.account });
-  await publicClient.waitForTransactionReceipt({ hash });
-  console.log(`  ✅ Lotteria chiusa`);
-
-  // Verifica che buyTickets dia revert a lotteria chiusa
-  console.log("  Player1 tenta di acquistare a lotteria chiusa...");
-  try {
-    await lottery.write.buyTickets([], {
-      account: player1.account,
-      value: parseEther("0.01"),
-    });
-  } catch (e) {
-    console.log(`  🚫 Revert corretto: La lotteria e' chiusa`);
-  }
-
-  // ── 7. Riapertura lotteria ─────────────────────────────────
-  sep("7. Riapertura lotteria per la prossima edizione");
+  // ── 6. Riapertura lotteria ─────────────────────────────────
+  sep("6. Riapertura lotteria per la prossima edizione");
   console.log("  Il manager riapre la lotteria...");
   hash = await lottery.write.openLottery([], { account: manager.account });
   await publicClient.waitForTransactionReceipt({ hash });
