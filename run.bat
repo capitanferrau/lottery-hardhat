@@ -2,6 +2,9 @@
 chcp 65001 >nul
 title Lottery Automation
 
+:: Assicurati di essere nella cartella dello script
+cd /d "%~dp0"
+
 :: ═══════════════════════════════════════════════════════════
 ::  LOTTERY AUTOMATION SCRIPT
 ::  Esegui questo file dalla root del progetto lottery-hardhat
@@ -15,35 +18,25 @@ echo.
 
 :: ── 0. Controlla prerequisiti ────────────────────────────────
 echo  [0/5] Controllo prerequisiti...
-
-node --version >nul 2>&1
+where node >nul 2>&1
 if %errorlevel% neq 0 (
-    echo.
     echo  [ERRORE] Node.js non e' installato!
-    echo  Scaricalo da: https://nodejs.org
-    echo  Installa la versione LTS, poi riprova.
+    echo  Scaricalo da: https://nodejs.org ^(versione LTS^)
     echo.
     pause & exit /b 1
 )
-for /f "tokens=*" %%v in ('node --version') do set NODE_VERSION=%%v
-echo  [OK] Node.js %NODE_VERSION% trovato.
-
-npm --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo.
-    echo  [ERRORE] npm non e' installato!
-    echo  Viene installato automaticamente con Node.js.
-    echo  Scarica Node.js da: https://nodejs.org
-    echo.
-    pause & exit /b 1
-)
-for /f "tokens=*" %%v in ('npm --version') do set NPM_VERSION=%%v
-echo  [OK] npm %NPM_VERSION% trovato.
+echo  [OK] Node.js trovato.
 echo.
 
 :: ── 1. Installa dipendenze ──────────────────────────────────
 echo  [1/5] Installazione dipendenze npm...
-call npm install
+call npm install --ignore-scripts 2>nul
+:: npm può uscire con codice non-zero per via delle vulnerabilità, verifichiamo
+:: che node_modules esista invece di controllare l'exit code
+if not exist "node_modules" (
+    echo  [ERRORE] npm install fallito. node_modules non trovato.
+    pause & exit /b 1
+)
 echo  [OK] Dipendenze installate.
 echo.
 

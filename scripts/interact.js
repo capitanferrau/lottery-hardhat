@@ -10,7 +10,7 @@ const hre = require("hardhat");
 const { parseEther, formatEther } = require("viem");
 
 // ⚠️  Inserisci qui l'indirizzo del contratto dopo il deploy
-const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS_HERE";
+const CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
 // ── Utility ──────────────────────────────────────────────────
 function sep(title) {

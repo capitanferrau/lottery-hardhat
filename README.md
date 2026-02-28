@@ -68,6 +68,7 @@ Il modo più semplice per eseguire tutto è fare **doppio click** su `run.bat`.
 
 Lo script esegue automaticamente in sequenza:
 
+0. Verifica che Node.js sia installato
 1. `npm install` — installa le dipendenze
 2. `npx hardhat compile` — compila il contratto
 3. `npx hardhat coverage` — esegue i test e mostra la copertura del codice
