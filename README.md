@@ -1,6 +1,8 @@
 # 🎰 Lottery Hardhat + Viem
 
-Progetto Hardhat per il contratto `LotteryWithTickets.sol`, con script di deploy, interazione, test e automazione scritti usando **Viem**.
+![Tests](https://github.com/capitanferrau/lottery-hardhat/actions/workflows/test.yml/badge.svg)
+
+Progetto Hardhat per il contratto `LotteryWithTickets.sol`, con script di deploy, interazione e test scritti usando **Viem**.
 
 ---
 
@@ -8,17 +10,51 @@ Progetto Hardhat per il contratto `LotteryWithTickets.sol`, con script di deploy
 
 ```
 lottery-hardhat/
+├── .github/
+│   └── workflows/
+│       └── test.yml               # GitHub Actions: esegue i test ad ogni push
 ├── contracts/
-│   └── LotteryWithTickets.sol      # Il contratto
+│   └── LotteryWithTickets.sol     # Il contratto
 ├── scripts/
-│   ├── deploy.js                   # Script di deploy
-│   └── interact.js                 # Script di interazione completa
+│   ├── deploy.js                  # Script di deploy
+│   └── interact.js                # Script di interazione completa
 ├── test/
-│   └── LotteryWithTickets.test.js  # 19 test con Viem + Chai
+│   └── LotteryWithTickets.test.js # 32 test con Viem + Chai
 ├── hardhat.config.js
 ├── package.json
-└── run.bat                         # Automazione completa con un click (Windows)
+├── README.md
+└── run.bat                        # Automazione completa con un click (Windows)
 ```
+
+---
+
+## 📖 Come funziona il contratto
+
+Il contratto `LotteryWithTickets` implementa una lotteria on-chain con i seguenti meccanismi:
+
+**Partecipazione** — Chiunque può acquistare uno o più biglietti inviando un multiplo di `ticketPrice` (default 0.01 ETH) alla funzione `buyTickets()`. Ogni biglietto corrisponde a una entry nell'array `tickets`, quindi chi compra più biglietti ha più probabilità di vincere.
+
+**Estrazione** — Solo il manager può chiamare `pickWinner()`, che seleziona un indirizzo a caso dall'array dei biglietti usando `keccak256` su `block.prevrandao`, `block.timestamp` e la lunghezza dell'array. Il montepremi viene assegnato al vincitore tramite il pattern **pull-payment** (`pendingWithdrawals`) per prevenire attacchi DoS.
+
+**Ritiro** — Il vincitore chiama `withdraw()` per ricevere i fondi. Il contratto segue il pattern **CEI** (Check-Effect-Interaction) per prevenire attacchi di reentrancy.
+
+**Gestione lotteria** — Il manager può aprire e chiudere la lotteria (`openLottery` / `closeLottery`). Quando è chiusa non è possibile né acquistare biglietti né estrarre il vincitore.
+
+**Prezzo biglietto** — Il manager può modificare `ticketPrice` con `setTicketPrice()`, ma solo quando non ci sono biglietti venduti.
+
+> ⚠️ La funzione `random()` è pseudo-casuale e non sicura in produzione. Per applicazioni reali usare **Chainlink VRF**.
+
+### Funzioni principali
+
+| Funzione | Chi può chiamarla | Descrizione |
+|---|---|---|
+| `buyTickets()` | Chiunque | Acquista biglietti inviando ETH |
+| `pickWinner()` | Manager | Estrae il vincitore e assegna il premio |
+| `withdraw()` | Chiunque (con fondi pending) | Ritira i fondi vinti |
+| `openLottery()` | Manager | Apre la lotteria |
+| `closeLottery()` | Manager | Chiude la lotteria |
+| `setTicketPrice()` | Manager | Cambia il prezzo del biglietto |
+| `getTickets()` | Chiunque | Restituisce l'array dei biglietti |
 
 ---
 
@@ -76,8 +112,6 @@ SOLIDITY_COVERAGE=true npx hardhat coverage
 
 ## 🔧 Deploy e interazione manuale
 
-Se preferisci eseguire i passi uno alla volta:
-
 ### 1 — Avvia il nodo Hardhat locale (Terminale 1)
 ```bash
 npm run node
@@ -101,10 +135,13 @@ npm run interact
 ```
 
 Lo script esegue in sequenza:
-1. Player1 acquista 2 biglietti (0.02 ETH)
-2. Player2 acquista 1 biglietto (0.01 ETH)
-3. Il manager estrae il vincitore
-4. Il vincitore ritira i fondi via `withdraw()`
+1. Mostra lo stato iniziale della lotteria
+2. Dimostra il cambio del prezzo biglietto
+3. Player1 e Player2 acquistano biglietti
+4. Il manager estrae il vincitore
+5. Il vincitore ritira i fondi
+6. Il manager chiude la lotteria e verifica il revert
+7. Il manager riapre la lotteria per la prossima edizione
 
 > ⚠️ Ogni volta che riavvii `npm run node`, la blockchain riparte da zero e devi ripetere il deploy.
 
