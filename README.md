@@ -136,13 +136,3 @@ Lo script esegue in sequenza:
 > Ogni volta che riavvii `npm run node`, la blockchain riparte da zero e devi ripetere il deploy.
 
 ---
-
-## Dipendenze principali
-
-| Pacchetto | Ruolo |
-|---|---|
-| `hardhat` | Framework di sviluppo Solidity |
-| `@nomicfoundation/hardhat-toolbox-viem` | Plugin Hardhat con integrazione Viem |
-| `viem` | Client Ethereum moderno (sostituisce ethers.js) |
-| `cross-env` | Gestione variabili d'ambiente cross-platform |
-| `chai` | Assertion library per i test (inclusa nel toolbox) |
