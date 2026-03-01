@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 >nul
 title Lottery Automation
 
 echo.
@@ -110,7 +109,7 @@ echo  ==========================================
 echo   Tutto completato con successo!
 echo  ==========================================
 echo.
-echo  Il nodo Hardhat e' ancora attivo nella finestra separata.
+echo  Il nodo Hardhat e ancora attivo nella finestra separata.
 echo  Chiudila manualmente quando hai finito.
 echo.
 pause
