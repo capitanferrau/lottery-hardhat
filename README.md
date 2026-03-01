@@ -14,7 +14,7 @@ lottery-hardhat/
 │   ├── deploy.js                  # Script di deploy
 │   └── interact.js                # Script di interazione completa
 ├── test/
-│   └── LotteryWithTickets.test.js # 32 test con Viem + Chai
+│   └── LotteryWithTickets.test.js # 36 test con Viem + Chai
 ├── hardhat.config.js
 ├── package.json
 ├── package-lock.json              # Versioni esatte delle dipendenze (non modificare)
