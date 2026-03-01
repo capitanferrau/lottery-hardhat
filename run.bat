@@ -6,7 +6,19 @@ echo  ==========================================
 echo   LOTTERY - Automazione Completa
 echo  ==========================================
 echo.
-pause
+
+:: ── 0. Controlla prerequisiti
+echo  [0/5] Controllo prerequisiti...
+where node >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo  [ERRORE] Node.js non e' installato!
+    echo  Scaricalo da: https://nodejs.org (versione LTS)
+    echo.
+    pause & exit /b 1
+)
+echo  [OK] Node.js trovato.
+echo.
 
 :: ── 1. Installa dipendenze
 echo  [1/5] Installazione dipendenze npm...
@@ -25,7 +37,7 @@ type compile_output.tmp
 findstr /i "SyntaxError CompileError ParseError HardhatError" compile_output.tmp >nul 2>&1
 if %errorlevel% equ 0 (
     del compile_output.tmp >nul 2>&1
-    echo  [ERRORE] Compilazione fallita.
+    echo  [ERRORE] Compilazione fallita. Controlla il contratto Solidity.
     pause & exit /b 1
 )
 del compile_output.tmp >nul 2>&1
@@ -111,7 +123,7 @@ echo  ==========================================
 echo   Tutto completato con successo!
 echo  ==========================================
 echo.
-echo  Il nodo Hardhat e ancora attivo nella finestra separata.
+echo  Il nodo Hardhat e' ancora attivo nella finestra separata.
 echo  Chiudila manualmente quando hai finito.
 echo.
 pause
