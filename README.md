@@ -1,10 +1,10 @@
-# 🎰 Lottery Hardhat + Viem
+# Lottery Hardhat + Viem
 
 Progetto Hardhat per il contratto `LotteryWithTickets.sol`, con script di deploy, interazione e test scritti usando **Viem**.
 
 ---
 
-## 📁 Struttura
+## Struttura
 
 ```
 lottery-hardhat/
@@ -24,25 +24,25 @@ lottery-hardhat/
 
 ---
 
-## 📖 Come funziona il contratto
+## Come funziona il contratto
 
 Il contratto `LotteryWithTickets` implementa una lotteria on-chain con i seguenti meccanismi:
 
-**Partecipazione** — Chiunque può acquistare uno o più biglietti inviando un multiplo di `ticketPrice` (default 0.01 ETH) alla funzione `buyTickets()`. Ogni biglietto corrisponde a una entry nell'array `tickets`, quindi chi compra più biglietti ha più probabilità di vincere.
+**Partecipazione** — Chiunque puo acquistare uno o piu biglietti inviando un multiplo di `ticketPrice` (default 0.01 ETH) alla funzione `buyTickets()`. Ogni biglietto corrisponde a una entry nell'array `tickets`, quindi chi compra piu biglietti ha piu probabilita di vincere.
 
-**Estrazione** — Prima di estrarre, il manager deve chiudere la lotteria con `closeLottery()` (impedendo nuovi acquisti). Solo allora può chiamare `pickWinner()`, che seleziona un indirizzo a caso dall'array dei biglietti usando `keccak256` su `block.prevrandao`, `block.timestamp` e la lunghezza dell'array. Il montepremi viene assegnato al vincitore tramite il pattern **pull-payment** (`pendingWithdrawals`) per prevenire attacchi DoS.
+**Estrazione** — Prima di estrarre, il manager deve chiudere la lotteria con `closeLottery()` (impedendo nuovi acquisti). Solo allora puo chiamare `pickWinner()`, che seleziona un indirizzo a caso dall'array dei biglietti usando `keccak256` su `block.prevrandao`, `block.timestamp` e la lunghezza dell'array. Il montepremi viene assegnato al vincitore tramite il pattern **pull-payment** (`pendingWithdrawals`) per prevenire attacchi DoS.
 
 **Ritiro** — Il vincitore chiama `withdraw()` per ricevere i fondi. Il contratto segue il pattern **CEI** (Check-Effect-Interaction) per prevenire attacchi di reentrancy.
 
-**Gestione lotteria** — Il manager può aprire e chiudere la lotteria (`openLottery` / `closeLottery`). Quando è chiusa non è possibile né acquistare biglietti né estrarre il vincitore.
+**Gestione lotteria** — Il manager puo aprire e chiudere la lotteria (`openLottery` / `closeLottery`). Quando e chiusa non e possibile ne acquistare biglietti ne estrarre il vincitore.
 
-**Prezzo biglietto** — Il manager può modificare `ticketPrice` con `setTicketPrice()`, ma solo quando non ci sono biglietti venduti.
+**Prezzo biglietto** — Il manager puo modificare `ticketPrice` con `setTicketPrice()`, ma solo quando non ci sono biglietti venduti.
 
-> ⚠️ La funzione `random()` è pseudo-casuale e non sicura in produzione. Per applicazioni reali usare **Chainlink VRF**.
+> Attenzione: La funzione `random()` e pseudo-casuale e non sicura in produzione. Per applicazioni reali usare **Chainlink VRF**.
 
 ### Funzioni principali
 
-| Funzione | Chi può chiamarla | Descrizione |
+| Funzione | Chi puo chiamarla | Descrizione |
 |---|---|---|
 | `buyTickets()` | Chiunque | Acquista biglietti inviando ETH |
 | `pickWinner()` | Manager | Estrae il vincitore e assegna il premio |
@@ -54,36 +54,39 @@ Il contratto `LotteryWithTickets` implementa una lotteria on-chain con i seguent
 
 ---
 
-## ⚙️ Setup
+## Prerequisiti
 
-```bash
-npm install
-```
+- [Node.js](https://nodejs.org) (versione LTS)
 
 ---
 
-## 🚀 Avvio rapido (Windows)
+## Avvio rapido (Windows)
 
-Il modo più semplice per eseguire tutto è fare **doppio click** su `run.bat`.
+Il modo piu semplice per eseguire tutto e fare **doppio click** su `run.bat`.
 
 Lo script esegue automaticamente in sequenza:
 
 1. `npm install` — installa le dipendenze
-2. `npx hardhat compile` — compila il contratto
-3. `npx hardhat coverage` — esegue i test e mostra la copertura del codice
+2. `npm run compile` — compila il contratto
+3. `npm run coverage` — esegue i test e mostra la copertura del codice
 4. Avvia il nodo Hardhat locale in una finestra separata
 5. Deploy del contratto e salvataggio automatico dell'indirizzo
 6. Esegue lo script di interazione completa
 
-> ⚠️ Su Windows è normale vedere `Assertion failed: UV_HANDLE_CLOSING` — è un bug noto di Node.js/Windows che non influenza i risultati.
+> Su Windows e normale vedere `Assertion failed: UV_HANDLE_CLOSING` — e un bug noto di Node.js/Windows che non influenza i risultati.
 
 ---
 
-## 🛠️ Comandi manuali
+## Comandi manuali
+
+### Installare le dipendenze
+```bash
+npm install
+```
 
 ### Compilare il contratto
 ```bash
-npx hardhat compile
+npm run compile
 ```
 
 ### Eseguire i test
@@ -92,21 +95,13 @@ npm test
 ```
 
 ### Verificare la coverage
-
 ```bash
-# Windows CMD
-set SOLIDITY_COVERAGE=true && npx hardhat coverage
-
-# Windows PowerShell
-$env:SOLIDITY_COVERAGE="true"; npx hardhat coverage
-
-# Mac/Linux
-SOLIDITY_COVERAGE=true npx hardhat coverage
+npm run coverage
 ```
 
 ---
 
-## 🔧 Deploy e interazione manuale
+## Deploy e interazione manuale
 
 ### 1 — Avvia il nodo Hardhat locale (Terminale 1)
 ```bash
@@ -138,15 +133,16 @@ Lo script esegue in sequenza:
 5. Il vincitore ritira i fondi
 6. Il manager riapre la lotteria per la prossima edizione
 
-> ⚠️ Ogni volta che riavvii `npm run node`, la blockchain riparte da zero e devi ripetere il deploy.
+> Ogni volta che riavvii `npm run node`, la blockchain riparte da zero e devi ripetere il deploy.
 
 ---
 
-## 📦 Dipendenze principali
+## Dipendenze principali
 
 | Pacchetto | Ruolo |
-|-----------|-------|
+|---|---|
 | `hardhat` | Framework di sviluppo Solidity |
 | `@nomicfoundation/hardhat-toolbox-viem` | Plugin Hardhat con integrazione Viem |
 | `viem` | Client Ethereum moderno (sostituisce ethers.js) |
+| `cross-env` | Gestione variabili d'ambiente cross-platform |
 | `chai` | Assertion library per i test (inclusa nel toolbox) |
