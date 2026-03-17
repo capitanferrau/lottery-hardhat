@@ -1,18 +1,10 @@
-/**
- * Script di interazione con LotteryWithTickets.
- * Prima fai partire `hardhat node` e poi `deploy:local`,
- * poi copia l'indirizzo del contratto qui sotto.
- *
- * Esegui con: npx hardhat run scripts/interact.js --network localhost
- */
-
 const hre = require("hardhat");
 const { parseEther, formatEther } = require("viem");
 
 // Inserisci qui l'indirizzo del contratto dopo il deploy
 const CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
-// ── Utility ──────────────────────────────────────────────────
+// Stampa
 function sep(title) {
   console.log("\n" + "=".repeat(50));
   if (title) console.log("  " + title);
@@ -31,7 +23,7 @@ async function printStatus(lottery, publicClient) {
   console.log("  Saldo contratto : " + formatEther(balance) + " ETH");
 }
 
-// ── Main ─────────────────────────────────────────────────────
+
 async function main() {
   const [manager, player1, player2] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
@@ -42,11 +34,11 @@ async function main() {
   console.log("  Player 1 : " + player1.account.address);
   console.log("  Player 2 : " + player2.account.address);
 
-  // ── 1. Stato iniziale
+ 
   sep("1. Stato iniziale");
   await printStatus(lottery, publicClient);
 
-  // ── 2. Cambio prezzo biglietto
+  
   sep("2. Cambio prezzo biglietto");
   console.log("  Il manager cambia il prezzo a 0.05 ETH...");
   let hash = await lottery.write.setTicketPrice([parseEther("0.05")], {
@@ -62,7 +54,7 @@ async function main() {
   await publicClient.waitForTransactionReceipt({ hash });
   console.log("  [OK] Prezzo riportato a 0.01 ETH");
 
-  // ── 3. Acquisto biglietti
+  
   sep("3. Acquisto biglietti");
   console.log("  Player1 acquista 2 biglietti (0.02 ETH)...");
   hash = await lottery.write.buyTickets([], {
@@ -82,7 +74,7 @@ async function main() {
 
   await printStatus(lottery, publicClient);
 
-  // ── 4. Estrazione vincitore
+  
   sep("4. Estrazione vincitore");
   console.log("  Il manager chiude la lotteria prima di estrarre...");
   hash = await lottery.write.closeLottery([], { account: manager.account });
@@ -106,7 +98,7 @@ async function main() {
 
   await printStatus(lottery, publicClient);
 
-  // ── 5. Ritiro fondi
+  
   sep("5. Ritiro fondi");
   const winnerClient = [manager, player1, player2].find(
     (w) => w.account.address.toLowerCase() === winner.toLowerCase()
@@ -123,7 +115,7 @@ async function main() {
   console.log("  Balance dopo  : " + formatEther(balAfter) + " ETH");
   console.log("  [OK] Ritiro completato!");
 
-  // ── 6. Riapertura lotteria
+  
   sep("6. Riapertura lotteria per la prossima edizione");
   console.log("  Il manager riapre la lotteria...");
   hash = await lottery.write.openLottery([], { account: manager.account });
